@@ -8,6 +8,10 @@ export class ProductService {
     return this.repository.findAll(filters);
   }
 
+  categories() {
+    return this.repository.findCategories();
+  }
+
   create(input: CreateProductDTO) {
     return this.repository.create(input);
   }

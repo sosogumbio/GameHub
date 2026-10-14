@@ -6,6 +6,7 @@ const router = Router();
 const controller = new ProductController();
 
 router.get("/", controller.list);
+router.get("/categories", controller.categories);
 router.post("/", authMiddleware, adminOnly, controller.create);
 router.delete("/:id", authMiddleware, adminOnly, controller.remove);
 

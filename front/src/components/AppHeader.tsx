@@ -9,6 +9,7 @@ export function AppHeader() {
       <nav>
         <Link href="/dashboard">Dashboard</Link>
         <Link href="/products">Produtos</Link>
+        <Link href="/favorites">Favoritos</Link>
         <Link href="/login">Entrar</Link>
       </nav>
     </header>

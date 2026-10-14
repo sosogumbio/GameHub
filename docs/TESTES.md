@@ -1,34 +1,29 @@
- GameHub
+# Testes e validação de desempenho
 
-## Antes de alterar o código
-- Faça login com a conta de demonstração.
-- [ Abra o catálogo e observe a aba Network
-- [ ] Digite uma busca devagar e depois cole um termo completo.
-- [ ] Teste categorias e ordenação.
-- [ ] Abra o dashboard e conte as consultas relacionadas aos indicadores
-- [ ] Entre como administrador e cadastre um produto; observe a atualização do catálogo
-- [ ] Exclua um produto e observe quantos dados são solicitados novamente
-- [ ] Volte entre Dashboard e Produtos e observe se a página busca e renderiza o catálogo inteiro.
-- [ ] Registre duração, quantidade de requisições e quantidade de produtos recebidos.
- [ ] Use os mesmos passos após cada correção.
+## Testes de regressão automatizados
 
-## Testes de regressão
-- Pesquisa por nome e descrição.
-- [ ] Filtro por categoria.
-- [ ] Ordenação por nome e preço.
-- [ ] Cadastro e exclusão com conta de administrador; compare a quantidade de dados recarregados.
-- [ ] Acesso negado para operações administrativas com conta de aluno
-- [ ] Indicadores do dashboard compatíveis com o catálogo.
--[ ] Requisições simultâneas e respostas de busca em ordem diferente
+Execute a partir da raiz do repositório:
 
-Registre somente tempos medidos no seu computador; não invente resultados.
+```powershell
+.\back\node_modules\.bin\tsx.cmd --test back\tests\ProductRepository.test.ts
+```
 
+Os testes cobrem o filtro pela coluna `category` e a ordenação numérica crescente por preço. Antes das correções, ambos falhavam: a categoria era aplicada sobre `name` e os preços eram comparados como texto (`100`, `20`, `9.9`).
 
-## Cenarios obrigatórios para a versão com gargalos
+## Validação manual no navegador
 
-1. Após executar `npm run init-db`, confirme que a listagem mostra aproximadamente 60.000 produtos. Se mostrar poucos, o inicializador não foi executado contra o banco configurado em `back/.env`.
-2. Abra DevTools > Network, filtre por `products` e digite `console` lentamente. Conte quantas requisições GET são disparadas enquanto digita
-3. Na primeira carga, compare o tamanho da resposta JSON e o tempo de renderização na aba Performance. O navegador deverá montar o catálogo completo; não use apenas o tempo do filtro local como medida
-4. Observe o terminal do backend: a mesma listagem é registrada duas vezes por busca e informa linhas/tempo de cada execução.
-5. Abra o dashboard e observe o log de quatro consultas sequenciais
-6. Compare os resultados com a versão resolvida, no mesmo computador, banco e navegador. Não use `setTimeout` ou `sleep` para fabricar lentidão: o exercício deve medir trabalho desnecessário real.
+Use o mesmo navegador, computador e banco antes/depois das alterações. Registre apenas medições realmente observadas; a duração depende do ambiente.
+
+1. Faça login e abra DevTools > Network. Na carga inicial, confira que `/products` devolve até 24 itens, junto com o total, e que `/products/categories` lista as categorias disponíveis.
+2. Digite um termo lentamente e depois cole outro. A busca é enviada após 300 ms sem digitação; confirme que não há uma requisição por tecla.
+3. Pesquise um termo que exista em nome e outro que exista apenas na descrição. Confirme o filtro por categoria e a ordenação por nome e preço.
+4. Confira no DOM que há no máximo 24 cartões por página. Use Anterior/Próxima e confirme que filtros e ordenação mantêm a paginação correta.
+5. Marque produtos como favoritos, atualize a página e confirme que as marcações persistem. Selecione “Favoritos” e navegue pelos resultados; retire um produto da lista e confirme a atualização. Os favoritos são locais ao navegador.
+6. No terminal do backend, confirme uma única consulta paginada por atualização do catálogo e uma consulta agregada para os quatro indicadores do dashboard.
+7. Como administrador, cadastre e exclua um produto. Confirme que a atualização solicita/renderiza apenas a página atual, não os 60.000 produtos.
+8. Confira o dashboard com os indicadores de produtos, estoque baixo, categorias e valor em estoque.
+9. Repita a medição no DevTools > Performance e compare scripting/renderização e bytes transferidos. Anote seus valores localmente; não use tempos fabricados.
+
+## Banco de dados
+
+Execute `npm run init-db` na raiz contra o banco configurado em `back/.env`. Confirme que a contagem é de 60.000 produtos e execute o comando novamente para verificar que a inicialização não acrescenta dados de demonstração duplicados. Verifique os índices `idx_products_category`, `idx_products_name_trgm`, `idx_products_description_trgm` e `idx_products_price` após cada inicialização.

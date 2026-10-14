@@ -13,7 +13,10 @@ const demoProducts = [
   ["Controle sem fio", "Controle ergonômico com conexão sem fio.", "Acessórios", 329.9, 12],
   ["Headset Gamer", "Headset com microfone e som estéreo.", "Acessórios", 279.9, 5],
   ["Teclado Mecânico", "Teclado compacto com iluminação.", "Acessórios", 399.9, 7],
-  ["RPG Reinos Antigos", "RPG com campanha longa e mundo aberto.", "Jogos", 299.9, 9]
+  ["RPG Reinos Antigos", "RPG com campanha longa e mundo aberto.", "Jogos", 299.9, 9],
+  ["AAA - Produto de R$ 9,90", "Produto de teste para verificar a ordenação por preço.", "Acessórios", 9.9, 50],
+  ["BBB - Produto de R$ 100,00", "Produto de teste para verificar a ordenação por preço.", "Periféricos", 100, 50],
+  ["CCC - Produto de R$ 1.200,00", "Produto de teste para verificar a ordenação por preço.", "Hardware", 1200, 50]
 ] as const;
 
 const productTemplates = [

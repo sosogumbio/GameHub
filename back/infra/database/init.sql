@@ -16,64 +16,9 @@ CREATE TABLE IF NOT EXISTS products (
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO products (
-    name,
-    description,
-    category,
-    price,
-    stock,
-    created_at
-)
-SELECT
-    'Produto Gamer ' || numero,
-    'Descrição detalhada do produto gamer número ' || numero,
-    CASE numero % 5
-        WHEN 0 THEN 'Consoles'
-        WHEN 1 THEN 'Periféricos'
-        WHEN 2 THEN 'Acessórios'
-        WHEN 3 THEN 'Jogos'
-        ELSE 'Hardware'
-    END,
-    ROUND((50 + random() * 1950)::numeric, 2),
-    (1 + floor(random() * 100))::integer,
-    NOW() - (random() * INTERVAL '365 days')
-FROM generate_series(1, 5000) AS numero;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
-
-INSERT INTO products (
-    name,
-    description,
-    category,
-    price,
-    stock,
-    created_at
-)
-VALUES
-    (
-        'AAA - Produto de R$ 9,90',
-        'Produto de teste para verificar a ordenação por preço.',
-        'Acessórios',
-        9.90,
-        50,
-        NOW()
-    ),
-    (
-        'BBB - Produto de R$ 100,00',
-        'Produto de teste para verificar a ordenação por preço.',
-        'Periféricos',
-        100.00,
-        50,
-        NOW()
-    ),
-    (
-        'CCC - Produto de R$ 1.200,00',
-        'Produto de teste para verificar a ordenação por preço.',
-        'Hardware',
-        1200.00,
-        50,
-        NOW()
-    );
-
-DROP INDEX IF EXISTS idx_products_category;
-DROP INDEX IF EXISTS idx_products_name;
-DROP INDEX IF EXISTS idx_products_price;
+CREATE INDEX IF NOT EXISTS idx_products_category ON products (category);
+CREATE INDEX IF NOT EXISTS idx_products_name_trgm ON products USING GIN (name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_products_description_trgm ON products USING GIN (description gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_products_price ON products (price);
